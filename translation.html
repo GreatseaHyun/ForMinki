@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIVY — Translation</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #FAFBFC; color: #1a1a1a; max-width: 430px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+  @keyframes pulseRing { 0% { transform:scale(0.8); opacity:0.2; } 100% { transform:scale(1.3); opacity:0; } }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+  .header { padding: 16px 20px 8px; display: flex; justify-content: space-between; align-items: center; }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .back-btn { cursor: pointer; text-decoration: none; display: flex; }
+  .header-title { font-size: 20px; font-weight: 700; color: #1B3A5C; }
+  .log-btn { cursor: pointer; padding: 6px 12px; border-radius: 8px; background: #F5F5F5; display: flex; align-items: center; gap: 6px; color: #888; font-size: 12px; font-weight: 500; border: none; font-family: inherit; }
+
+  .lang-bar { padding: 8px 20px 16px; display: flex; align-items: center; justify-content: center; gap: 12px; }
+  .lang-pill { padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .lang-pill.active { background: #1B3A5C; color: white; }
+  .lang-pill.inactive { background: #F0F0F0; color: #888; }
+  .lang-code { font-size: 11px; opacity: 0.7; }
+  .swap-icon { cursor: pointer; }
+
+  .center-area { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0 30px; position: relative; }
+
+  /* Idle */
+  .idle-icon { width: 80px; height: 80px; border-radius: 50%; background: #F5F7FA; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+  .idle-text { font-size: 16px; font-weight: 600; color: #BBB; }
+  .idle-hint { font-size: 13px; color: #DDD; margin-top: 6px; }
+
+  /* Pulse rings */
+  .pulse-container { position: relative; width: 160px; height: 160px; margin-bottom: 24px; }
+  .pulse-ring { position: absolute; border-radius: 50%; border: 2px solid; animation: pulseRing 2s ease-out infinite; }
+  .mic-circle { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+  .listening-label { font-size: 12px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 10px; }
+  .current-text { font-size: 18px; font-weight: 600; color: #333; line-height: 1.5; margin-bottom: 8px; min-height: 27px; }
+  .current-translation { font-size: 15px; font-weight: 500; line-height: 1.4; min-height: 22px; }
+  .cursor-blink { animation: blink 1s infinite; }
+
+  /* Bottom controls */
+  .controls { padding: 16px 20px 28px; }
+  .show-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 0; border-radius: 12px; background: #F5F7FA; margin-bottom: 12px; cursor: pointer; color: #555; font-size: 13px; font-weight: 500; border: none; width: 100%; font-family: inherit; animation: fadeUp 0.3s ease; }
+  .action-row { display: flex; gap: 10px; }
+  .action-btn { flex: 1; padding: 16px 0; border-radius: 14px; text-align: center; cursor: pointer; transition: all 0.2s; border: none; font-family: inherit; }
+  .action-label { font-size: 13px; font-weight: 700; }
+  .action-sub { font-size: 10px; margin-top: 2px; }
+
+  /* Show Card (full screen) */
+  .show-card { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px; background: white; }
+  .show-translation { font-size: 32px; font-weight: 700; color: #1B3A5C; text-align: center; line-height: 1.4; margin-bottom: 24px; }
+  .show-divider { width: 60px; height: 2px; background: #E0E0E0; margin-bottom: 24px; }
+  .show-original { font-size: 16px; color: #AAA; text-align: center; line-height: 1.4; margin-bottom: 32px; }
+  .play-btn { width: 56px; height: 56px; border-radius: 50%; background: #F5F7FA; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: none; }
+  .close-btn { padding: 12px 40px; border-radius: 12px; border: 1.5px solid #EEE; font-size: 14px; color: #888; cursor: pointer; background: none; font-family: inherit; }
+
+  /* Log view */
+  .log-view { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .log-header { padding: 16px 20px; display: flex; align-items: center; gap: 10px; }
+  .log-lang-bar { padding: 0 20px 12px; display: flex; align-items: center; gap: 8px; }
+  .log-count { margin-left: auto; font-size: 12px; color: #CCC; }
+  .chat-area { flex: 1; overflow: auto; padding: 10px 20px; }
+  .bubble-row { display: flex; flex-direction: column; margin-bottom: 14px; }
+  .bubble-row.me { align-items: flex-end; }
+  .bubble-row.them { align-items: flex-start; }
+  .bubble-meta { font-size: 10px; color: #CCC; margin-bottom: 3px; padding: 0 4px; }
+  .bubble { max-width: 85%; padding: 12px 16px; }
+  .bubble.me { border-radius: 16px 16px 4px 16px; background: #1B3A5C; color: white; }
+  .bubble.them { border-radius: 16px 16px 16px 4px; background: #F5F7FA; color: #333; }
+  .bubble-main { font-size: 14px; font-weight: 500; line-height: 1.5; }
+  .bubble-sub { font-size: 12px; margin-top: 6px; line-height: 1.4; }
+  .bubble.me .bubble-sub { color: rgba(255,255,255,0.5); }
+  .bubble.them .bubble-sub { color: #AAA; }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<!-- ===== MAIN VIEW ===== -->
+<div id="main-view" style="flex:1;display:flex;flex-direction:column;">
+
+  <div class="header">
+    <div class="header-left">
+      <a href="home.html" class="back-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg></a>
+      <div class="header-title">Translation</div>
+    </div>
+    <button class="log-btn" onclick="showView('log-view')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+      Log
+    </button>
+  </div>
+
+  <div class="lang-bar">
+    <div class="lang-pill" id="lang-ko"><span class="lang-code">KO</span> Korean</div>
+    <div class="swap-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round"><path d="M7 16V4m0 0L3 8m4-4 4 4M17 8v12m0 0 4-4m-4 4-4-4"/></svg></div>
+    <div class="lang-pill" id="lang-ja"><span class="lang-code">JA</span> Japanese</div>
+  </div>
+
+  <div class="center-area" id="center">
+    <!-- Idle (default) -->
+    <div id="state-idle">
+      <div style="text-align:center;">
+        <div class="idle-icon" style="margin:0 auto 20px;">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#CCC" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 18v4"/></svg>
+        </div>
+        <div class="idle-text">Ready to translate</div>
+        <div class="idle-hint">Tap a button below or speak to your AIVY device</div>
+      </div>
+    </div>
+
+    <!-- Listening -->
+    <div id="state-listening" class="hidden" style="text-align:center;">
+      <div class="pulse-container">
+        <div class="pulse-ring" style="width:80px;height:80px;top:40px;left:40px;border-color:#E67E22;opacity:0.15;animation-delay:0s;"></div>
+        <div class="pulse-ring" style="width:120px;height:120px;top:20px;left:20px;border-color:#E67E22;opacity:0.11;animation-delay:0.4s;"></div>
+        <div class="pulse-ring" style="width:160px;height:160px;top:0;left:0;border-color:#E67E22;opacity:0.07;animation-delay:0.8s;"></div>
+        <div class="mic-circle" style="background:#FFF3E0;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 18v4"/></svg>
+        </div>
+      </div>
+      <div class="listening-label" style="color:#E67E22;">Listening · Japanese</div>
+      <div class="current-text" id="listen-text"></div>
+      <div class="current-translation" id="listen-trans" style="color:#3A7BBF;"></div>
+    </div>
+
+    <!-- Speaking -->
+    <div id="state-speaking" class="hidden" style="text-align:center;">
+      <div class="pulse-container">
+        <div class="pulse-ring" style="width:80px;height:80px;top:40px;left:40px;border-color:#3A7BBF;opacity:0.15;animation-delay:0s;"></div>
+        <div class="pulse-ring" style="width:120px;height:120px;top:20px;left:20px;border-color:#3A7BBF;opacity:0.11;animation-delay:0.4s;"></div>
+        <div class="pulse-ring" style="width:160px;height:160px;top:0;left:0;border-color:#3A7BBF;opacity:0.07;animation-delay:0.8s;"></div>
+        <div class="mic-circle" style="background:#E3F2FD;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3A7BBF" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 18v4"/></svg>
+        </div>
+      </div>
+      <div class="listening-label" style="color:#3A7BBF;">Your turn · Korean</div>
+      <div class="current-text" id="speak-text"></div>
+      <div class="current-translation" id="speak-trans" style="color:#E67E22;"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="show-btn hidden" id="show-card-btn" onclick="showView('card-view')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+      Show to counterpart
+    </button>
+    <div class="action-row">
+      <button class="action-btn" id="listen-btn" onclick="toggleListen()" style="background:#FFF3E0;">
+        <div class="action-label" style="color:#E67E22;">Listen</div>
+        <div class="action-sub" style="color:#E6A756;">Their language</div>
+      </button>
+      <button class="action-btn" id="speak-btn" onclick="toggleSpeak()" style="background:#E3F2FD;">
+        <div class="action-label" style="color:#3A7BBF;">Speak</div>
+        <div class="action-sub" style="color:#7BAFD6;">Your language</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SHOW CARD VIEW ===== -->
+<div id="card-view" class="show-card hidden">
+  <div class="show-translation" id="card-translation">はい、あちらに200メートル行けば着きます。</div>
+  <div class="show-divider"></div>
+  <div class="show-original" id="card-original">네, 저쪽으로 200미터 가시면 됩니다.</div>
+  <button class="play-btn">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="#1B3A5C"><path d="M8 5v14l11-7z"/></svg>
+  </button>
+  <button class="close-btn" onclick="showView('main-view')">Close</button>
+</div>
+
+<!-- ===== LOG VIEW ===== -->
+<div id="log-view" class="log-view hidden">
+  <div class="log-header">
+    <a href="#" class="back-btn" onclick="showView('main-view');return false;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg></a>
+    <div style="font-size:18px;font-weight:700;color:#1B3A5C;">Conversation Log</div>
+  </div>
+  <div class="log-lang-bar">
+    <div class="lang-pill inactive"><span class="lang-code">KO</span> Korean</div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round"><path d="M7 16V4m0 0L3 8m4-4 4 4M17 8v12m0 0 4-4m-4 4-4-4"/></svg>
+    <div class="lang-pill inactive"><span class="lang-code">JA</span> Japanese</div>
+    <span class="log-count">4 turns</span>
+  </div>
+  <div class="chat-area" id="chat-area"></div>
+</div>
+
+<script>
+const conversations = [
+  { speaker:'them', original:'すみません、この近くに駅はありますか？', translated:'실례합니다, 이 근처에 역이 있나요?', time:'14:32' },
+  { speaker:'me', original:'네, 저쪽으로 200미터 가시면 됩니다.', translated:'はい、あちらに200メートル行けば着きます。', time:'14:32' },
+  { speaker:'them', original:'ありがとうございます。所要時間はどのくらいですか？', translated:'감사합니다. 소요 시간은 얼마나 되나요?', time:'14:33' },
+  { speaker:'me', original:'걸어서 3분 정도요.', translated:'歩いて3分くらいです。', time:'14:33' },
+];
+
+// Populate chat
+const chatArea = document.getElementById('chat-area');
+conversations.forEach(c => {
+  const isMe = c.speaker === 'me';
+  chatArea.innerHTML += `
+    <div class="bubble-row ${isMe ? 'me' : 'them'}">
+      <div class="bubble-meta">${isMe ? 'You' : 'Them'} · ${c.time}</div>
+      <div class="bubble ${isMe ? 'me' : 'them'}">
+        <div class="bubble-main">${isMe ? c.translated : c.original}</div>
+        <div class="bubble-sub">${isMe ? c.original : c.translated}</div>
+      </div>
+    </div>`;
+});
+
+let currentState = 'idle'; // idle | listening | speaking
+let hasTranslation = false;
+
+function showView(id) {
+  ['main-view','card-view','log-view'].forEach(v => document.getElementById(v).classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  document.getElementById(id).style.display = 'flex';
+}
+// Init
+document.getElementById('main-view').style.display = 'flex';
+
+function setState(s) {
+  currentState = s; hasTranslation = false;
+  ['state-idle','state-listening','state-speaking'].forEach(el => document.getElementById(el).classList.add('hidden'));
+  document.getElementById('show-card-btn').classList.add('hidden');
+
+  // Reset texts
+  ['listen-text','listen-trans','speak-text','speak-trans'].forEach(id => document.getElementById(id).textContent = '');
+
+  // Update lang pills
+  document.getElementById('lang-ko').className = 'lang-pill ' + (s === 'speaking' ? 'active' : 'inactive');
+  document.getElementById('lang-ja').className = 'lang-pill ' + (s === 'listening' ? 'active' : 'inactive');
+
+  // Update buttons
+  const lb = document.getElementById('listen-btn');
+  const sb = document.getElementById('speak-btn');
+  if (s === 'listening') {
+    lb.style.background = '#E67E22'; lb.querySelector('.action-label').style.color = 'white'; lb.querySelector('.action-label').textContent = 'Listening...'; lb.querySelector('.action-sub').style.color = 'rgba(255,255,255,0.7)';
+    sb.style.background = '#E3F2FD'; sb.querySelector('.action-label').style.color = '#3A7BBF'; sb.querySelector('.action-label').textContent = 'Speak'; sb.querySelector('.action-sub').style.color = '#7BAFD6';
+  } else if (s === 'speaking') {
+    sb.style.background = '#3A7BBF'; sb.querySelector('.action-label').style.color = 'white'; sb.querySelector('.action-label').textContent = 'Translating...'; sb.querySelector('.action-sub').style.color = 'rgba(255,255,255,0.7)';
+    lb.style.background = '#FFF3E0'; lb.querySelector('.action-label').style.color = '#E67E22'; lb.querySelector('.action-label').textContent = 'Listen'; lb.querySelector('.action-sub').style.color = '#E6A756';
+  } else {
+    lb.style.background = '#FFF3E0'; lb.querySelector('.action-label').style.color = '#E67E22'; lb.querySelector('.action-label').textContent = 'Listen'; lb.querySelector('.action-sub').style.color = '#E6A756';
+    sb.style.background = '#E3F2FD'; sb.querySelector('.action-label').style.color = '#3A7BBF'; sb.querySelector('.action-label').textContent = 'Speak'; sb.querySelector('.action-sub').style.color = '#7BAFD6';
+  }
+
+  if (s !== 'idle') {
+    document.getElementById('state-' + s).classList.remove('hidden');
+    simulateText(s);
+  } else {
+    document.getElementById('state-idle').classList.remove('hidden');
+  }
+}
+
+function toggleListen() { setState(currentState === 'listening' ? 'idle' : 'listening'); }
+function toggleSpeak() { setState(currentState === 'speaking' ? 'idle' : 'speaking'); }
+
+function simulateText(mode) {
+  if (mode === 'listening') {
+    setTimeout(() => { if (currentState==='listening') document.getElementById('listen-text').innerHTML = 'すみません...<span class="cursor-blink">|</span>'; }, 800);
+    setTimeout(() => { if (currentState==='listening') document.getElementById('listen-text').innerHTML = 'すみません、この近くに...<span class="cursor-blink">|</span>'; }, 1500);
+    setTimeout(() => {
+      if (currentState==='listening') {
+        document.getElementById('listen-text').textContent = 'すみません、この近くに駅はありますか？';
+        document.getElementById('listen-trans').textContent = '→ 실례합니다, 이 근처에 역이 있나요?';
+        hasTranslation = true;
+        document.getElementById('show-card-btn').classList.remove('hidden');
+      }
+    }, 2500);
+  } else if (mode === 'speaking') {
+    setTimeout(() => { if (currentState==='speaking') document.getElementById('speak-text').innerHTML = '네, 저쪽으로...<span class="cursor-blink">|</span>'; }, 800);
+    setTimeout(() => {
+      if (currentState==='speaking') {
+        document.getElementById('speak-text').textContent = '네, 저쪽으로 200미터 가시면 됩니다.';
+        document.getElementById('speak-trans').textContent = '→ はい、あちらに200メートル行けば着きます。';
+        hasTranslation = true;
+        document.getElementById('show-card-btn').classList.remove('hidden');
+      }
+    }, 1800);
+  }
+}
+
+setState('idle');
+</script>
+</body>
+</html>

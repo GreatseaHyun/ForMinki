@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIVY — Memory</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #FAFBFC; color: #1a1a1a; max-width: 430px; margin: 0 auto; min-height: 100vh; padding-bottom: 30px; }
+
+  @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes shimmer { 0% { background-position:-200px 0; } 100% { background-position:200px 0; } }
+
+  .header { padding: 20px 24px 8px; display: flex; align-items: center; gap: 10px; }
+  .back-btn { cursor: pointer; text-decoration: none; display: flex; }
+  .header-title { font-size: 22px; font-weight: 700; color: #1B3A5C; letter-spacing: -0.5px; }
+
+  /* Search bar */
+  .search-wrap { padding: 8px 20px 4px; }
+  .search-box {
+    display: flex; align-items: center; gap: 10px;
+    padding: 13px 16px; border-radius: 14px; background: white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06); border: 1.5px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .search-box.active { border-color: #E67E22; }
+  .search-box input { flex: 1; border: none; outline: none; background: transparent; font-size: 14px; color: #333; font-family: inherit; }
+  .search-clear { cursor: pointer; font-size: 18px; color: #CCC; line-height: 1; border: none; background: none; }
+  .search-submit { padding: 6px 14px; border-radius: 8px; cursor: pointer; border: none; transition: background 0.15s; display: flex; align-items: center; }
+  .search-submit.ready { background: #1B3A5C; }
+  .search-submit.empty { background: #F0F0F0; cursor: default; }
+
+  /* Recent queries */
+  .recent { padding: 10px 20px 0; }
+  .recent-label { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-size: 11px; color: #CCC; }
+  .recent-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .recent-chip { padding: 6px 12px; border-radius: 18px; background: #F5F5F5; font-size: 12px; color: #777; cursor: pointer; border: none; font-family: inherit; }
+  .recent-chip:hover { background: #EDEDED; }
+
+  /* Shimmer */
+  .shimmer-bar { width: 200px; height: 12px; border-radius: 6px; margin: 0 auto 10px; background: linear-gradient(90deg, #F0F0F0 25%, #E0E0E0 50%, #F0F0F0 75%); background-size: 400px 100%; animation: shimmer 1.5s infinite; }
+  .shimmer-text { font-size: 13px; color: #BBB; text-align: center; }
+
+  /* Ask AI result */
+  .ask-result { padding: 14px 20px; animation: fadeUp 0.3s ease; }
+  .ask-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-left: 4px solid #E67E22; }
+  .ask-header { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; }
+  .ask-badge { font-size: 12px; font-weight: 600; color: #E67E22; }
+  .ask-query { font-size: 13px; color: #999; margin-bottom: 12px; }
+  .ask-answer { font-size: 16px; font-weight: 600; color: #1B3A5C; line-height: 1.6; margin-bottom: 16px; }
+  .entity-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .entity-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 8px; }
+  .entity-type { font-size: 10px; font-weight: 600; }
+  .entity-value { font-size: 11px; color: #555; }
+  .source-link { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 10px; background: #F8F8F8; cursor: pointer; }
+  .source-icon { font-size: 14px; }
+  .source-title { font-size: 12px; font-weight: 600; color: #555; }
+  .source-meta { font-size: 10px; color: #BBB; }
+
+  /* Filters */
+  .filters { padding: 14px 20px 8px; display: flex; gap: 6px; overflow-x: auto; }
+  .filter-chip { padding: 7px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; border: none; font-family: inherit; display: flex; align-items: center; gap: 5px; flex-shrink: 0; transition: all 0.15s; }
+  .filter-chip.active { background: #1B3A5C; color: white; font-weight: 600; }
+  .filter-chip.inactive { background: #F0F0F0; color: #777; }
+
+  /* Session list */
+  .session-header { padding: 4px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .session-label { font-size: 11px; font-weight: 600; color: #999; letter-spacing: 0.5px; text-transform: uppercase; }
+  .session-count { font-size: 11px; color: #CCC; }
+  .session-list { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
+
+  .session-card { display: flex; gap: 14px; padding: 16px; border-radius: 14px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.04); cursor: pointer; transition: transform 0.1s; }
+  .session-card:hover { transform: scale(1.01); }
+  .session-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .session-info { flex: 1; min-width: 0; }
+  .session-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+  .session-title { font-size: 14px; font-weight: 700; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; margin-right: 8px; }
+  .session-ago { font-size: 10px; color: #CCC; flex-shrink: 0; }
+  .session-preview { font-size: 12px; color: #888; line-height: 1.5; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .session-tags { display: flex; gap: 4px; }
+  .session-tag { font-size: 10px; padding: 2px 8px; border-radius: 6px; background: #F5F5F5; color: #AAA; }
+
+  .empty-msg { text-align: center; padding: 40px 0; color: #DDD; font-size: 14px; }
+
+  .nav-links { padding: 20px; }
+  .nav-links a { display: inline-block; margin-right: 8px; margin-bottom: 6px; padding: 6px 12px; border-radius: 8px; background: #F0F0F0; color: #666; text-decoration: none; font-size: 12px; }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="home.html" class="back-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg></a>
+  <div class="header-title">Memory</div>
+</div>
+
+<!-- Search -->
+<div class="search-wrap">
+  <div class="search-box" id="search-box">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="#E67E22"><path d="M12 2l2.09 6.26L20 10l-5.91 1.74L12 18l-2.09-6.26L4 10l5.91-1.74L12 2z"/></svg>
+    <input type="text" placeholder="Ask anything... (e.g. 예산 얼마였지?)" id="search-input"/>
+    <button class="search-clear hidden" id="clear-btn" onclick="clearSearch()">&times;</button>
+    <button class="search-submit empty" id="submit-btn" onclick="doSearch()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#CCC" stroke-width="2" stroke-linecap="round" id="submit-icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- Recent queries -->
+<div class="recent" id="recent-section">
+  <div class="recent-label">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CCC" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    Recent
+  </div>
+  <div class="recent-chips">
+    <button class="recent-chip" onclick="setSearch('아까 예산 얼마라 그랬지?')">아까 예산 얼마라 그랬지?</button>
+    <button class="recent-chip" onclick="setSearch('어제 차 어디 세웠지?')">어제 차 어디 세웠지?</button>
+    <button class="recent-chip" onclick="setSearch('지난번 러닝 페이스')">지난번 러닝 페이스</button>
+  </div>
+</div>
+
+<!-- Searching -->
+<div class="hidden" id="searching" style="padding:24px 20px;text-align:center;">
+  <div class="shimmer-bar"></div>
+  <div class="shimmer-text">Searching memory...</div>
+</div>
+
+<!-- Ask AI Result -->
+<div class="ask-result hidden" id="ask-result">
+  <div class="ask-card">
+    <div class="ask-header">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="#E67E22"><path d="M12 2l2.09 6.26L20 10l-5.91 1.74L12 18l-2.09-6.26L4 10l5.91-1.74L12 2z"/></svg>
+      <span class="ask-badge">Ask AI</span>
+    </div>
+    <div class="ask-query" id="result-query"></div>
+    <div class="ask-answer" id="result-answer"></div>
+    <div class="entity-row" id="result-entities"></div>
+    <div class="source-link">
+      <span class="source-icon">📝</span>
+      <div style="flex:1"><div class="source-title" id="result-source-title"></div><div class="source-meta" id="result-source-meta"></div></div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CCC" stroke-width="2" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg>
+    </div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="filters" id="filters">
+  <button class="filter-chip active" onclick="setFilter('all',this)">All</button>
+  <button class="filter-chip inactive" onclick="setFilter('meeting',this)">📝 Meeting</button>
+  <button class="filter-chip inactive" onclick="setFilter('navigation',this)">🗺 Navigation</button>
+  <button class="filter-chip inactive" onclick="setFilter('ocr',this)">📸 OCR</button>
+  <button class="filter-chip inactive" onclick="setFilter('exercise',this)">🏃 Exercise</button>
+  <button class="filter-chip inactive" onclick="setFilter('translation',this)">🌐 Translation</button>
+</div>
+
+<!-- Session list -->
+<div class="session-header">
+  <span class="session-label">Session History</span>
+  <span class="session-count" id="session-count"></span>
+</div>
+<div class="session-list" id="session-list"></div>
+
+<div class="nav-links"><a href="home.html">Home</a><a href="settings.html">Settings</a></div>
+
+<script>
+const sessions = [
+  { id:1, type:'meeting', title:'Product Team Weekly', ago:'2h ago', preview:'Budget confirmed at 30M KRW. Report deadline: next Wednesday.', tags:['budget','deadline'], icon:'📝', color:'#F3E5F5' },
+  { id:2, type:'navigation', title:'Sogang Univ → Gangnam Station', ago:'5h ago', preview:'1.2km walked in 16 min. Arrived via Sinchon Station route.', tags:['walk','arrived'], icon:'🗺', color:'#E8EEF4' },
+  { id:3, type:'ocr', title:'Restaurant Menu — Ichiran Ramen', ago:'1d ago', preview:'Tonkotsu Ramen ¥980, Extra noodles ¥150. Recommended: Original flavor.', tags:['menu','price'], icon:'📸', color:'#FFF8E1' },
+  { id:4, type:'exercise', title:'Evening Run — Han River', ago:'1d ago', preview:'5.1km in 31:42. Avg pace 6:11/km. Cadence stable at 172 SPM.', tags:['running','5km'], icon:'🏃', color:'#E8F5E9' },
+  { id:5, type:'translation', title:'Conversation at Tokyo Station', ago:'4d ago', preview:'8 turns. Asked for directions to Shinjuku platform. JA↔KO.', tags:['japanese','directions'], icon:'🌐', color:'#E3F2FD' },
+  { id:6, type:'meeting', title:'Design Review', ago:'5d ago', preview:'UI mockups approved. Park to finalize icons by Friday.', tags:['design','action-item'], icon:'📝', color:'#F3E5F5' },
+  { id:7, type:'ocr', title:'Medicine Label — Tylenol', ago:'6d ago', preview:'Dosage: 1-2 tablets every 6 hours. Do not exceed 8 tablets/day.', tags:['medicine','dosage'], icon:'📸', color:'#FFF8E1' },
+];
+
+const entityColors = {
+  MONEY: { bg:'#FFF3E0', text:'#E67E22' },
+  PERSON: { bg:'#F3E5F5', text:'#7B1FA2' },
+  TIME: { bg:'#E3F2FD', text:'#2E5E8E' },
+};
+
+let activeFilter = 'all';
+
+function renderSessions() {
+  const filtered = activeFilter === 'all' ? sessions : sessions.filter(s => s.type === activeFilter);
+  document.getElementById('session-count').textContent = filtered.length + ' records';
+  const list = document.getElementById('session-list');
+  list.innerHTML = '';
+  if (filtered.length === 0) { list.innerHTML = '<div class="empty-msg">No sessions found</div>'; return; }
+  filtered.forEach(s => {
+    list.innerHTML += `
+      <div class="session-card">
+        <div class="session-icon" style="background:${s.color}">${s.icon}</div>
+        <div class="session-info">
+          <div class="session-top"><div class="session-title">${s.title}</div><span class="session-ago">${s.ago}</span></div>
+          <div class="session-preview">${s.preview}</div>
+          <div class="session-tags">${s.tags.map(t => `<span class="session-tag">${t}</span>`).join('')}</div>
+        </div>
+      </div>`;
+  });
+}
+
+function setFilter(type, el) {
+  activeFilter = type;
+  document.querySelectorAll('.filter-chip').forEach(c => { c.classList.remove('active'); c.classList.add('inactive'); });
+  el.classList.remove('inactive'); el.classList.add('active');
+  renderSessions();
+}
+
+const searchInput = document.getElementById('search-input');
+const clearBtn = document.getElementById('clear-btn');
+const submitBtn = document.getElementById('submit-btn');
+const submitIcon = document.getElementById('submit-icon');
+
+searchInput.addEventListener('input', () => {
+  const hasText = searchInput.value.trim().length > 0;
+  clearBtn.classList.toggle('hidden', !hasText);
+  submitBtn.className = 'search-submit ' + (hasText ? 'ready' : 'empty');
+  submitIcon.setAttribute('stroke', hasText ? 'white' : '#CCC');
+});
+searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+
+function setSearch(q) { searchInput.value = q; searchInput.dispatchEvent(new Event('input')); }
+
+function clearSearch() {
+  searchInput.value = ''; searchInput.dispatchEvent(new Event('input'));
+  document.getElementById('ask-result').classList.add('hidden');
+  document.getElementById('searching').classList.add('hidden');
+  document.getElementById('recent-section').classList.remove('hidden');
+  document.getElementById('search-box').classList.remove('active');
+}
+
+function doSearch() {
+  const q = searchInput.value.trim();
+  if (!q) return;
+  document.getElementById('recent-section').classList.add('hidden');
+  document.getElementById('ask-result').classList.add('hidden');
+  document.getElementById('searching').classList.remove('hidden');
+  document.getElementById('search-box').classList.add('active');
+
+  setTimeout(() => {
+    document.getElementById('searching').classList.add('hidden');
+    document.getElementById('search-box').classList.remove('active');
+
+    document.getElementById('result-query').textContent = '"' + q + '"';
+    document.getElementById('result-answer').textContent = '오늘 14:32 Product Team Weekly에서 김팀장이 \'3천만 원\'이라고 언급했습니다.';
+
+    const entities = [
+      { type:'MONEY', value:'30,000,000 KRW' },
+      { type:'PERSON', value:'Kim TL' },
+      { type:'TIME', value:'14:32' },
+    ];
+    const entEl = document.getElementById('result-entities');
+    entEl.innerHTML = '';
+    entities.forEach(e => {
+      const c = entityColors[e.type] || { bg:'#F5F5F5', text:'#666' };
+      entEl.innerHTML += `<div class="entity-badge" style="background:${c.bg}"><span class="entity-type" style="color:${c.text}">${e.type}</span><span class="entity-value">${e.value}</span></div>`;
+    });
+
+    document.getElementById('result-source-title').textContent = 'Product Team Weekly';
+    document.getElementById('result-source-meta').textContent = 'Kim TL · 14:32';
+    document.getElementById('ask-result').classList.remove('hidden');
+  }, 1500);
+}
+
+renderSessions();
+</script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIVY — Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #FAFBFC; color: #1a1a1a; max-width: 430px; margin: 0 auto; min-height: 100vh; padding-bottom: 40px; }
+
+  .header { padding: 20px 24px 16px; }
+  .back { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; font-size: 13px; color: #999; cursor: pointer; text-decoration: none; }
+  .header .title { font-size: 24px; font-weight: 700; color: #1B3A5C; letter-spacing: -0.5px; }
+
+  .section { margin: 0 20px 20px; }
+  .section-title { font-size: 11px; font-weight: 600; color: #999; letter-spacing: 0.8px; text-transform: uppercase; padding: 0 4px; margin-bottom: 10px; }
+  .section-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+
+  .row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 20px; border-bottom: 1px solid #F5F5F5;
+  }
+  .row:last-child, .row.last { border-bottom: none; }
+  .row-left { flex: 1; margin-right: 12px; }
+  .row-label { font-size: 14px; font-weight: 500; color: #333; }
+  .row-desc { font-size: 11px; color: #AAA; margin-top: 2px; }
+  .row-right { flex-shrink: 0; }
+
+  /* Toggle */
+  .toggle { width: 48px; height: 28px; border-radius: 14px; padding: 3px; cursor: pointer; transition: background 0.2s; }
+  .toggle.on { background: #3A7BBF; }
+  .toggle.on-red { background: #CC3333; }
+  .toggle.off { background: #DDD; }
+  .toggle-knob { width: 22px; height: 22px; border-radius: 50%; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.15); transition: transform 0.2s; }
+  .toggle.on .toggle-knob, .toggle.on-red .toggle-knob { transform: translateX(20px); }
+
+  /* Chips */
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    padding: 6px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.15s;
+  }
+  .chip.active { background: #1B3A5C; color: white; font-weight: 600; }
+  .chip.inactive { background: #F0F0F0; color: #777; font-weight: 400; }
+
+  /* Value */
+  .value { font-size: 13px; font-weight: 500; }
+  .value-blue { color: #3A7BBF; }
+  .value-green { color: #2E8B57; }
+  .value-gray { color: #555; }
+  .value-light { color: #CCC; }
+
+  /* Status badge */
+  .badge { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 10px; }
+  .badge-green { background: #E8F5E9; color: #2E8B57; }
+
+  /* Chevron */
+  .chevron { display: flex; align-items: center; gap: 8px; }
+
+  .nav-links { padding: 20px; }
+  .nav-links a { display: inline-block; margin-right: 8px; margin-bottom: 6px; padding: 6px 12px; border-radius: 8px; background: #F0F0F0; color: #666; text-decoration: none; font-size: 12px; }
+  .nav-links a:hover { background: #E0E0E0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="home.html" class="back">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg>
+    Back
+  </a>
+  <div class="title">Settings</div>
+</div>
+
+<!-- DEVICE -->
+<div class="section">
+  <div class="section-title">Device</div>
+  <div class="section-card">
+    <div class="row">
+      <div class="row-left"><div class="row-label">Connected Device</div><div class="row-desc">Tap to manage pairing</div></div>
+      <div class="row-right chevron">
+        <span class="value value-blue">AIVY-Pro</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CCC" stroke-width="2" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg>
+      </div>
+    </div>
+    <div class="row last">
+      <div class="row-left"><div class="row-label">Auto-Connect</div><div class="row-desc">Reconnect automatically when device is nearby</div></div>
+      <div class="row-right"><div class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off');"><div class="toggle-knob"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CONNECTION -->
+<div class="section">
+  <div class="section-title">Connection</div>
+  <div class="section-card">
+    <div class="row">
+      <div class="row-left"><div class="row-label">Bluetooth (Audio SCO)</div><div class="row-desc">Voice input/output channel</div></div>
+      <div class="row-right"><div class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off');"><div class="toggle-knob"></div></div></div>
+    </div>
+    <div class="row">
+      <div class="row-left"><div class="row-label">WiFi Direct (Data)</div><div class="row-desc">Events, camera frames, large data</div></div>
+      <div class="row-right"><div class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off');"><div class="toggle-knob"></div></div></div>
+    </div>
+    <div class="row last">
+      <div class="row-left"><div class="row-label">Event Transport</div><div class="row-desc">Which channel carries gesture/activity events</div></div>
+      <div class="row-right">
+        <div class="chips" id="event-chips">
+          <div class="chip active" onclick="setChip('event-chips',this)">WiFi Direct</div>
+          <div class="chip inactive" onclick="setChip('event-chips',this)">BT</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AI ENGINE -->
+<div class="section">
+  <div class="section-title">AI Engine</div>
+  <div class="section-card">
+    <div class="row">
+      <div class="row-left"><div class="row-label">Cloud LLM Provider</div><div class="row-desc">For summaries, complex Ask AI, translation</div></div>
+      <div class="row-right">
+        <div class="chips" id="llm-chips">
+          <div class="chip active" onclick="setChip('llm-chips',this)">Claude</div>
+          <div class="chip inactive" onclick="setChip('llm-chips',this)">GPT</div>
+          <div class="chip inactive" onclick="setChip('llm-chips',this)">Gemini</div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="row-left"><div class="row-label">On-Device SLM</div><div class="row-desc">Local inference model</div></div>
+      <div class="row-right"><span class="value value-gray">Qwen3 1.7B</span></div>
+    </div>
+    <div class="row">
+      <div class="row-left"><div class="row-label">SLM Status</div><div class="row-desc">Model loading state</div></div>
+      <div class="row-right"><span class="badge badge-green">Loaded</span></div>
+    </div>
+    <div class="row last">
+      <div class="row-left"><div class="row-label">Offline Fallback</div><div class="row-desc">Use SLM only when network is unavailable</div></div>
+      <div class="row-right"><div class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off');"><div class="toggle-knob"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SAFETY -->
+<div class="section">
+  <div class="section-title">Safety</div>
+  <div class="section-card">
+    <div class="row">
+      <div class="row-left"><div class="row-label">Safety Pre-Filter</div><div class="row-desc">Rule-based checks before SLM (Stage 1)</div></div>
+      <div class="row-right"><div class="toggle on-red" onclick="this.classList.toggle('on-red');this.classList.toggle('off');"><div class="toggle-knob"></div></div></div>
+    </div>
+    <div class="row">
+      <div class="row-left"><div class="row-label">Fall Detection</div><div class="row-desc">Auto-detect falls and initiate emergency protocol</div></div>
+      <div class="row-right"><div class="toggle on-red" onclick="this.classList.toggle('on-red');this.classList.toggle('off');"><div class="toggle-knob"></div></div></div>
+    </div>
+    <div class="row last">
+      <div class="row-left"><div class="row-label">Emergency Contact</div><div class="row-desc">Called when fall detected and no response</div></div>
+      <div class="row-right chevron">
+        <span class="value value-light">Not set</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CCC" stroke-width="2" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AUDIO & VOICE -->
+<div class="section">
+  <div class="section-title">Audio & Voice</div>
+  <div class="section-card">
+    <div class="row">
+      <div class="row-left"><div class="row-label">TTS Speed</div></div>
+      <div class="row-right">
+        <div class="chips" id="tts-chips">
+          <div class="chip inactive" onclick="setChip('tts-chips',this)">Slow</div>
+          <div class="chip active" onclick="setChip('tts-chips',this)">Normal</div>
+          <div class="chip inactive" onclick="setChip('tts-chips',this)">Fast</div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="row-left"><div class="row-label">3D Spatial Audio</div><div class="row-desc">Directional sound for navigation</div></div>
+      <div class="row-right"><div class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off');"><div class="toggle-knob"></div></div></div>
+    </div>
+    <div class="row last">
+      <div class="row-left"><div class="row-label">Wake Word</div><div class="row-desc">Activate AIVY by voice</div></div>
+      <div class="row-right"><div class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off');"><div class="toggle-knob"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- BATTERY & PERFORMANCE -->
+<div class="section">
+  <div class="section-title">Battery & Performance</div>
+  <div class="section-card">
+    <div class="row">
+      <div class="row-left"><div class="row-label">Low Battery Threshold</div><div class="row-desc">TTS switches to text-only below this</div></div>
+      <div class="row-right">
+        <div class="chips" id="bat-chips">
+          <div class="chip inactive" onclick="setChip('bat-chips',this)">10%</div>
+          <div class="chip active" onclick="setChip('bat-chips',this)">20%</div>
+          <div class="chip inactive" onclick="setChip('bat-chips',this)">30%</div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="row-left"><div class="row-label">Auto Cloud Offload</div><div class="row-desc">Switch to cloud when device overheats</div></div>
+      <div class="row-right"><div class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off');"><div class="toggle-knob"></div></div></div>
+    </div>
+    <div class="row last">
+      <div class="row-left"><div class="row-label">Hysteresis Guard</div><div class="row-desc">Entry ≤20% / ≥50°C — Return ≥30% / ≤47°C</div></div>
+      <div class="row-right"><span class="value value-green">Active</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- LANGUAGE -->
+<div class="section">
+  <div class="section-title">Language</div>
+  <div class="section-card">
+    <div class="row">
+      <div class="row-left"><div class="row-label">App Language</div></div>
+      <div class="row-right">
+        <div class="chips" id="lang-chips">
+          <div class="chip active" onclick="setChip('lang-chips',this)">한국어</div>
+          <div class="chip inactive" onclick="setChip('lang-chips',this)">English</div>
+          <div class="chip inactive" onclick="setChip('lang-chips',this)">日本語</div>
+        </div>
+      </div>
+    </div>
+    <div class="row last">
+      <div class="row-left"><div class="row-label">Translation Target</div><div class="row-desc">Default target language for overseas mode</div></div>
+      <div class="row-right">
+        <div class="chips" id="trans-chips">
+          <div class="chip active" onclick="setChip('trans-chips',this)">Auto</div>
+          <div class="chip inactive" onclick="setChip('trans-chips',this)">EN</div>
+          <div class="chip inactive" onclick="setChip('trans-chips',this)">JA</div>
+          <div class="chip inactive" onclick="setChip('trans-chips',this)">ZH</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<div class="section">
+  <div class="section-title">About</div>
+  <div class="section-card">
+    <div class="row"><div class="row-left"><div class="row-label">App Version</div></div><div class="row-right"><span class="value value-gray">1.0.0-alpha</span></div></div>
+    <div class="row"><div class="row-left"><div class="row-label">Architecture</div></div><div class="row-right"><span class="value value-gray">v3 Final</span></div></div>
+    <div class="row"><div class="row-left"><div class="row-label">SLM Size</div></div><div class="row-right"><span class="value value-gray">~1 GB</span></div></div>
+    <div class="row last">
+      <div class="row-left"><div class="row-label">Debug Event Log</div><div class="row-desc">Show raw WearableEvent stream on Home</div></div>
+      <div class="row-right"><div class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off');"><div class="toggle-knob"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="nav-links"><a href="home.html">Home</a><a href="pairing.html">Pairing</a></div>
+
+<script>
+function setChip(groupId, el) {
+  const parent = document.getElementById(groupId);
+  parent.querySelectorAll('.chip').forEach(c => { c.classList.remove('active'); c.classList.add('inactive'); });
+  el.classList.remove('inactive'); el.classList.add('active');
+}
+</script>
+</body>
+</html>
