@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { color, font, radius } from "../tokens";
+import { color, font, radius, shadow } from "../tokens";
 
 function Toggle({ value, onChange }) {
   return (
@@ -35,7 +35,7 @@ function Section({ title, children }) {
   return (
     <div style={{ marginBottom: 18 }}>
       <div style={{ fontSize: font.label.size, fontWeight: font.label.weight, color: color.text3, letterSpacing: font.label.letterSpacing, textTransform: "uppercase", padding: "0 4px", marginBottom: 8 }}>{title}</div>
-      <div style={{ background: color.surface, borderRadius: radius.lg, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>{children}</div>
+      <div style={{ background: color.surface, borderRadius: radius.lg, overflow: "hidden", boxShadow: shadow.sm }}>{children}</div>
     </div>
   );
 }
@@ -48,7 +48,7 @@ function Row({ label, desc, right, last = false, onClick }) {
       cursor: onClick ? "pointer" : "default",
     }}>
       <div style={{ flex: 1, marginRight: 12 }}>
-        <div style={{ fontSize: font.body.size, fontWeight: 500, color: color.text1 }}>{label}</div>
+        <div style={{ fontSize: font.bodyText.size, fontWeight: 500, color: color.text1 }}>{label}</div>
         {desc && <div style={{ fontSize: font.tiny.size, color: color.text3, marginTop: 2 }}>{desc}</div>}
       </div>
       <div style={{ flexShrink: 0 }}>{right}</div>
@@ -85,10 +85,10 @@ export default function SettingsPage({ onNavigate, devMode, setDevMode }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", backgroundColor: color.background }}>
+    <div style={{ flex: 1, overflowY: "auto", backgroundColor: "transparent" }}>
       {/* Header */}
-      <div style={{ padding: "20px 24px 14px" }}>
-        <div style={{ fontSize: font.h1.size, fontWeight: font.h1.weight, color: color.primary, letterSpacing: font.h1.letterSpacing }}>설정</div>
+      <div style={{ padding: "20px 24px 14px", animation: "fadeUp 0.4s ease both" }}>
+        <div style={{ fontSize: font.h1.size, fontWeight: font.h1.weight, color: color.primary, letterSpacing: font.h1.letterSpacing, fontFamily: font.display }}>설정</div>
       </div>
 
       <div style={{ padding: "0 20px", paddingBottom: 20 }}>

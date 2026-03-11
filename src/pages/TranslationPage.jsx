@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { color, font, radius } from "../tokens";
+import { color, font, radius, shadow } from "../tokens";
 
 const TRANS_STATE = { IDLE: "idle", LISTENING: "listening", SPEAKING: "speaking", SHOW_CARD: "show_card", LOG: "log" };
 
@@ -8,6 +8,8 @@ const MOCK_CONVERSATIONS = [
   { id: 2, speaker: "me", original: "네, 저쪽으로 200미터 가시면 됩니다.", translated: "はい、あちらに200メートル行けば着きます。", time: "14:32" },
   { id: 3, speaker: "them", original: "ありがとうございます。所要時間はどのくらいですか？", translated: "감사합니다. 소요 시간은 얼마나 되나요?", time: "14:33" },
   { id: 4, speaker: "me", original: "걸어서 3분 정도요.", translated: "歩いて3分くらいです。", time: "14:33" },
+  { id: 5, speaker: "them", original: "新宿方面のホームはどちらですか？", translated: "신주쿠 방면 플랫폼은 어디인가요?", time: "14:34" },
+  { id: 6, speaker: "me", original: "1번 플랫폼이에요. 계단을 내려가세요.", translated: "1番ホームです。階段を降りてください。", time: "14:34" },
 ];
 
 const BackIcon = () => (
@@ -75,7 +77,7 @@ function ChatBubble({ item }) {
         borderRadius: isMe ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
         backgroundColor: isMe ? color.primary : color.backgroundAlt,
       }}>
-        <div style={{ fontSize: font.body.size, fontWeight: 500, color: isMe ? "white" : color.text1, lineHeight: 1.5 }}>
+        <div style={{ fontSize: font.bodyText.size, fontWeight: 500, color: isMe ? "white" : color.text1, lineHeight: 1.5 }}>
           {isMe ? item.translated : item.original}
         </div>
         <div style={{ fontSize: font.caption.size, color: isMe ? "rgba(255,255,255,0.5)" : color.text4, marginTop: 6, lineHeight: 1.4 }}>
@@ -134,7 +136,7 @@ export default function TranslationPage() {
         <div onClick={() => {}} style={{ width: 56, height: 56, borderRadius: "50%", backgroundColor: color.background, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", marginBottom: 40, boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
           <PlayIcon size={24} c={color.primary} />
         </div>
-        <div onClick={() => { setState(TRANS_STATE.IDLE); resetCurrent(); }} style={{ padding: "12px 40px", borderRadius: radius.md, border: `1.5px solid ${color.border}`, fontSize: font.body.size, color: color.text3, cursor: "pointer" }}>
+        <div onClick={() => { setState(TRANS_STATE.IDLE); resetCurrent(); }} style={{ padding: "12px 40px", borderRadius: radius.md, border: `1.5px solid ${color.border}`, fontSize: font.bodyText.size, color: color.text3, cursor: "pointer" }}>
           닫기
         </div>
       </div>
@@ -147,7 +149,7 @@ export default function TranslationPage() {
       <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
         <div style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
           <div onClick={() => setState(TRANS_STATE.IDLE)} style={{ cursor: "pointer" }}><BackIcon /></div>
-          <div style={{ fontSize: font.h2.size - 2, fontWeight: font.h2.weight, color: color.primary }}>대화 기록</div>
+          <div style={{ fontSize: font.h2.size - 2, fontWeight: font.h2.weight, color: color.primary, fontFamily: font.display }}>대화 기록</div>
         </div>
         <div style={{ padding: "0 20px 12px", display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
           <LangPill code="KO" name="한국어" active={false} />
@@ -167,7 +169,7 @@ export default function TranslationPage() {
     <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
       {/* Header */}
       <div style={{ padding: "16px 20px 8px", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
-        <div style={{ fontSize: font.h2.size, fontWeight: font.h2.weight, color: color.primary }}>번역</div>
+        <div style={{ fontSize: font.h2.size, fontWeight: font.h2.weight, color: color.primary, fontFamily: font.display }}>번역</div>
         <div onClick={() => setState(TRANS_STATE.LOG)} style={{ cursor: "pointer", padding: "6px 12px", borderRadius: radius.sm, backgroundColor: color.backgroundAlt, display: "flex", alignItems: "center", gap: 6, color: color.text3 }}>
           <ListIcon /><span style={{ fontSize: font.caption.size, fontWeight: 500 }}>기록</span>
         </div>
