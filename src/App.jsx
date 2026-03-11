@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { color } from "./tokens";
 import HomePage from "./pages/HomePage";
 import NavigationPage from "./pages/NavigationPage";
 import TranslationPage from "./pages/TranslationPage";
@@ -8,21 +9,21 @@ import PairingPage from "./pages/PairingPage";
 
 /* ── Bottom Nav Icons ── */
 const HomeIcon = ({ active }) => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? "#1B3A5C" : "none"} stroke={active ? "#1B3A5C" : "#B0B0B0"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? color.primary : "none"} stroke={active ? color.primary : color.text4} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M4 12l8-8 8 8" />
     <path d="M6 10.5V19a1 1 0 0 0 1 1h3.5v-4.5h3V20H17a1 1 0 0 0 1-1v-8.5" />
   </svg>
 );
 
 const NavIcon = ({ active }) => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? "#1B3A5C" : "none"} stroke={active ? "#1B3A5C" : "#B0B0B0"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? color.primary : "none"} stroke={active ? color.primary : color.text4} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
     <circle cx="12" cy="9" r="2.5" fill={active ? "white" : "none"} />
   </svg>
 );
 
 const TranslateIcon = ({ active }) => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? "#1B3A5C" : "#B0B0B0"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? color.primary : color.text4} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
     <path d="M2 12h20" />
     <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
@@ -30,14 +31,14 @@ const TranslateIcon = ({ active }) => (
 );
 
 const MemoryIcon = ({ active }) => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? "#1B3A5C" : "#B0B0B0"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? color.primary : color.text4} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="11" cy="11" r="7" />
     <path d="m16.5 16.5 4.5 4.5" />
   </svg>
 );
 
 const GearIcon = ({ active }) => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? "#1B3A5C" : "#B0B0B0"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? color.primary : color.text4} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="4" y1="21" x2="4" y2="14" /><line x1="4" y1="10" x2="4" y2="3" />
     <line x1="12" y1="21" x2="12" y2="12" /><line x1="12" y1="8" x2="12" y2="3" />
     <line x1="20" y1="21" x2="20" y2="16" /><line x1="20" y1="12" x2="20" y2="3" />
@@ -50,11 +51,11 @@ const GearIcon = ({ active }) => (
 /* ── Bottom Navigation Bar ── */
 function BottomNav({ activeTab, onTabChange }) {
   const tabs = [
-    { key: "home", label: "Home", Icon: HomeIcon },
-    { key: "navigate", label: "Navigate", Icon: NavIcon },
-    { key: "translate", label: "Translate", Icon: TranslateIcon },
-    { key: "memory", label: "Memory", Icon: MemoryIcon },
-    { key: "settings", label: "Settings", Icon: GearIcon },
+    { key: "home", label: "홈", Icon: HomeIcon },
+    { key: "navigate", label: "길안내", Icon: NavIcon },
+    { key: "translate", label: "번역", Icon: TranslateIcon },
+    { key: "memory", label: "기억", Icon: MemoryIcon },
+    { key: "settings", label: "설정", Icon: GearIcon },
   ];
 
   return (
@@ -64,8 +65,8 @@ function BottomNav({ activeTab, onTabChange }) {
         justifyContent: "space-around",
         alignItems: "center",
         height: 60,
-        backgroundColor: "white",
-        borderTop: "1px solid #EBEBEB",
+        backgroundColor: color.surface,
+        borderTop: `1px solid ${color.border}`,
         flexShrink: 0,
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}
@@ -93,7 +94,7 @@ function BottomNav({ activeTab, onTabChange }) {
               style={{
                 fontSize: 10,
                 fontWeight: isActive ? 600 : 400,
-                color: isActive ? "#1B3A5C" : "#B0B0B0",
+                color: isActive ? color.primary : color.text4,
                 letterSpacing: 0.1,
               }}
             >
@@ -110,6 +111,7 @@ function BottomNav({ activeTab, onTabChange }) {
 export default function App() {
   const [activeTab, setActiveTab] = useState("home");
   const [showPairing, setShowPairing] = useState(false);
+  const [devMode, setDevMode] = useState(false);
 
   const handleNavigate = (tab) => {
     if (tab === "pairing") {
@@ -128,9 +130,9 @@ export default function App() {
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "#F5F7FA",
+        backgroundColor: color.background,
         fontFamily: "'DM Sans', -apple-system, sans-serif",
-        color: "#1a1a1a",
+        color: color.text1,
         position: "relative",
         overflow: "hidden",
         boxShadow: "0 0 40px rgba(0,0,0,0.08)",
@@ -143,7 +145,7 @@ export default function App() {
         ) : (
           <>
             <div style={{ display: activeTab === "home" ? "flex" : "none", flexDirection: "column", height: "100%" }}>
-              <HomePage onNavigate={handleNavigate} />
+              <HomePage onNavigate={handleNavigate} devMode={devMode} />
             </div>
             <div style={{ display: activeTab === "navigate" ? "flex" : "none", flexDirection: "column", height: "100%" }}>
               <NavigationPage />
@@ -155,7 +157,7 @@ export default function App() {
               <MemoryPage />
             </div>
             <div style={{ display: activeTab === "settings" ? "flex" : "none", flexDirection: "column", height: "100%" }}>
-              <SettingsPage onNavigate={handleNavigate} />
+              <SettingsPage onNavigate={handleNavigate} devMode={devMode} setDevMode={setDevMode} />
             </div>
           </>
         )}
