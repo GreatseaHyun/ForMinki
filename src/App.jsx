@@ -6,6 +6,7 @@ import TranslationPage from "./pages/TranslationPage";
 import MemoryPage from "./pages/MemoryPage";
 import SettingsPage from "./pages/SettingsPage";
 import PairingPage from "./pages/PairingPage";
+import OcrPage from "./pages/OcrPage";
 
 /* ── Bottom Nav Icons ── */
 const HomeIcon = ({ active }) => (
@@ -129,15 +130,35 @@ function BottomNav({ activeTab, onTabChange }) {
 export default function App() {
   const [activeTab, setActiveTab] = useState("home");
   const [showPairing, setShowPairing] = useState(false);
+  const [showOcr, setShowOcr] = useState(false);
+  const [ocrReturnTab, setOcrReturnTab] = useState("home");
+  const [ocrNavContext, setOcrNavContext] = useState(false);
   const [devMode, setDevMode] = useState(false);
 
   const handleNavigate = (tab) => {
     if (tab === "pairing") {
       setShowPairing(true);
-    } else {
-      setActiveTab(tab);
-      setShowPairing(false);
+      setShowOcr(false);
+      return;
     }
+
+    if (tab === "ocr") {
+      const returnTab = showPairing ? "settings" : activeTab;
+      setOcrReturnTab(returnTab);
+      setOcrNavContext(returnTab === "navigate");
+      setShowOcr(true);
+      setShowPairing(false);
+      return;
+    }
+
+    setActiveTab(tab);
+    setShowPairing(false);
+    setShowOcr(false);
+  };
+
+  const handleOcrExit = (nextTab) => {
+    setShowOcr(false);
+    setActiveTab(nextTab || ocrReturnTab || "home");
   };
 
   return (
@@ -160,6 +181,8 @@ export default function App() {
       <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
         {showPairing ? (
           <PairingPage onNavigate={handleNavigate} />
+        ) : showOcr ? (
+          <OcrPage onExit={handleOcrExit} returnTab={ocrReturnTab} navContext={ocrNavContext} />
         ) : (
           <>
             <div style={{ display: activeTab === "home" ? "flex" : "none", flexDirection: "column", height: "100%" }}>
@@ -182,7 +205,7 @@ export default function App() {
       </div>
 
       {/* Bottom Navigation */}
-      {!showPairing && (
+      {!showPairing && !showOcr && (
         <BottomNav activeTab={activeTab} onTabChange={handleNavigate} />
       )}
     </div>

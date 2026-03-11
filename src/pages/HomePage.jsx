@@ -82,7 +82,7 @@ function EventTypeBadge({ type }) {
 const scenarios = [
   { name: "길안내", subtitle: "내비게이션", Icon: MapRouteIcon, colors: iconColors.navigation, tab: "navigate" },
   { name: "번역", subtitle: "실시간 통역", Icon: LanguagesIcon, colors: iconColors.translation, tab: "translate" },
-  { name: "OCR", subtitle: "텍스트 인식", Icon: ScanTextIcon, colors: iconColors.ocr, tab: null },
+  { name: "OCR", subtitle: "텍스트 인식", Icon: ScanTextIcon, colors: iconColors.ocr, tab: "ocr" },
   { name: "운동", subtitle: "활동 추적", Icon: ActivityIcon, colors: iconColors.exercise, tab: null },
   { name: "회의", subtitle: "회의 기록", Icon: MeetingIcon, colors: iconColors.meeting, tab: null },
   { name: "기억", subtitle: "AI 검색", Icon: SparklesIcon, colors: iconColors.memory, tab: "memory" },
@@ -336,3 +336,4 @@ export default function HomePage({ onNavigate, devMode }) {
     </div>
   );
 }
+
