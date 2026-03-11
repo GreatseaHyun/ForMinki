@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { color, font, radius } from "../tokens";
+import { color, font, radius, shadow } from "../tokens";
+import { AivyLogoIcon } from "../icons";
 
 const PHASE = { SCANNING: "scanning", FOUND: "found", CONNECTING: "connecting", BT_DONE: "bt_done", WIFI_CONNECTING: "wifi_connecting", CONNECTED: "connected" };
 
@@ -84,15 +85,15 @@ export default function PairingPage({ onNavigate }) {
     : phase === PHASE.WIFI_CONNECTING ? 2 : 3;
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", backgroundColor: color.background }}>
+    <div style={{ flex: 1, overflowY: "auto", backgroundColor: "transparent" }}>
       {/* Header */}
-      <div style={{ padding: "20px 24px 0", display: "flex", alignItems: "center", gap: 12 }}>
+      <div style={{ padding: "20px 24px 0", display: "flex", alignItems: "center", gap: 12, animation: "fadeUp 0.4s ease both" }}>
         <div onClick={() => onNavigate("home")} style={{ cursor: "pointer" }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color.text4} strokeWidth="2" strokeLinecap="round"><path d="m15 18-6-6 6-6" /></svg>
         </div>
         <div>
           <div style={{ fontSize: font.caption.size + 1, color: color.text3 }}>AIVY 설정</div>
-          <div style={{ fontSize: font.h1.size, fontWeight: font.h1.weight, color: color.primary, letterSpacing: font.h1.letterSpacing }}>기기 페어링</div>
+          <div style={{ fontSize: font.h1.size, fontWeight: font.h1.weight, color: color.primary, letterSpacing: font.h1.letterSpacing, fontFamily: font.display }}>기기 페어링</div>
         </div>
       </div>
 
@@ -101,7 +102,7 @@ export default function PairingPage({ onNavigate }) {
       <div style={{ padding: "0 20px" }}>
         {/* SCANNING */}
         {phase === PHASE.SCANNING && (
-          <div style={{ background: color.surface, borderRadius: radius.lg, padding: "48px 24px", textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+          <div style={{ background: color.surface, borderRadius: radius.lg, padding: "48px 24px", textAlign: "center", boxShadow: shadow.sm }}>
             <div style={{ marginBottom: 20 }}><Spinner size={48} /></div>
             <div style={{ fontSize: font.h3.size, fontWeight: font.h3.weight, color: color.text2 }}>AIVY 기기를 찾고 있습니다{dots}</div>
             <div style={{ fontSize: font.caption.size + 1, color: color.text4, marginTop: 8 }}>기기의 전원이 켜져 있는지 확인하세요</div>
@@ -110,10 +111,10 @@ export default function PairingPage({ onNavigate }) {
 
         {/* FOUND */}
         {phase === PHASE.FOUND && (
-          <div style={{ background: color.surface, borderRadius: radius.lg, padding: "20px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+          <div style={{ background: color.surface, borderRadius: radius.lg, padding: "20px", boxShadow: shadow.sm }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color.accent} strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
-              <span style={{ fontSize: font.body.size, fontWeight: 600, color: color.text2 }}>{devices.length}개 기기 발견</span>
+              <span style={{ fontSize: font.bodyText.size, fontWeight: 600, color: color.text2 }}>{devices.length}개 기기 발견</span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {devices.map((d) => (
@@ -123,7 +124,7 @@ export default function PairingPage({ onNavigate }) {
                   cursor: "pointer", animation: "fadeIn 0.3s ease",
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                    <div style={{ width: 44, height: 44, borderRadius: radius.md, backgroundColor: color.primary, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: font.caption.size + 1, fontWeight: 700 }}>Ai</div>
+                    <div style={{ width: 44, height: 44, borderRadius: radius.md, background: `linear-gradient(135deg, ${color.primary} 0%, #264E78 100%)`, display: "flex", alignItems: "center", justifyContent: "center" }}><AivyLogoIcon size={26} lightColor="#fff" darkColor="rgba(255,255,255,0.7)" /></div>
                     <div>
                       <div style={{ fontSize: 15, fontWeight: 700, color: color.text1 }}>{d.name}</div>
                       <div style={{ fontSize: font.tiny.size, color: color.text3, marginTop: 2 }}>배터리 {d.battery}%</div>
@@ -139,22 +140,22 @@ export default function PairingPage({ onNavigate }) {
 
         {/* CONNECTING BT */}
         {(phase === PHASE.CONNECTING || phase === PHASE.BT_DONE) && selected && (
-          <div style={{ background: color.surface, borderRadius: radius.lg, padding: "32px 24px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+          <div style={{ background: color.surface, borderRadius: radius.lg, padding: "32px 24px", boxShadow: shadow.sm }}>
             <div style={{ textAlign: "center", marginBottom: 24 }}>
-              <div style={{ width: 56, height: 56, borderRadius: radius.lg, backgroundColor: color.primary, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 18, fontWeight: 700, margin: "0 auto 12px" }}>Ai</div>
+              <div style={{ width: 56, height: 56, borderRadius: radius.lg, background: `linear-gradient(135deg, ${color.primary} 0%, #264E78 100%)`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}><AivyLogoIcon size={32} lightColor="#fff" darkColor="rgba(255,255,255,0.7)" /></div>
               <div style={{ fontSize: 18, fontWeight: 700, color: color.text1 }}>{selected.name}</div>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderRadius: radius.md, backgroundColor: phase === PHASE.BT_DONE ? color.positiveLight : color.accentLight, marginBottom: 12 }}>
               {phase === PHASE.BT_DONE ? <CheckIcon /> : <Spinner size={20} c={color.accent} />}
               <div>
-                <div style={{ fontSize: font.body.size, fontWeight: 600, color: phase === PHASE.BT_DONE ? color.positive : color.text2 }}>Bluetooth</div>
+                <div style={{ fontSize: font.bodyText.size, fontWeight: 600, color: phase === PHASE.BT_DONE ? color.positive : color.text2 }}>Bluetooth</div>
                 <div style={{ fontSize: font.tiny.size, color: color.text3 }}>{phase === PHASE.BT_DONE ? "음성 연결 완료" : `연결 중${dots}`}</div>
               </div>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderRadius: radius.md, backgroundColor: color.backgroundAlt }}>
               <div style={{ width: 20, height: 20, borderRadius: "50%", backgroundColor: color.border }} />
               <div>
-                <div style={{ fontSize: font.body.size, fontWeight: 600, color: color.text4 }}>WiFi Direct</div>
+                <div style={{ fontSize: font.bodyText.size, fontWeight: 600, color: color.text4 }}>WiFi Direct</div>
                 <div style={{ fontSize: font.tiny.size, color: color.text4 }}>Bluetooth 대기 중</div>
               </div>
             </div>
@@ -163,30 +164,30 @@ export default function PairingPage({ onNavigate }) {
 
         {/* WIFI CONNECTING */}
         {phase === PHASE.WIFI_CONNECTING && selected && (
-          <div style={{ background: color.surface, borderRadius: radius.lg, padding: "32px 24px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+          <div style={{ background: color.surface, borderRadius: radius.lg, padding: "32px 24px", boxShadow: shadow.sm }}>
             <div style={{ textAlign: "center", marginBottom: 24 }}>
-              <div style={{ width: 56, height: 56, borderRadius: radius.lg, backgroundColor: color.primary, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 18, fontWeight: 700, margin: "0 auto 12px" }}>Ai</div>
+              <div style={{ width: 56, height: 56, borderRadius: radius.lg, background: `linear-gradient(135deg, ${color.primary} 0%, #264E78 100%)`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}><AivyLogoIcon size={32} lightColor="#fff" darkColor="rgba(255,255,255,0.7)" /></div>
               <div style={{ fontSize: 18, fontWeight: 700, color: color.text1 }}>{selected.name}</div>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderRadius: radius.md, backgroundColor: color.positiveLight, marginBottom: 12 }}>
               <CheckIcon />
-              <div><div style={{ fontSize: font.body.size, fontWeight: 600, color: color.positive }}>Bluetooth</div><div style={{ fontSize: font.tiny.size, color: color.text3 }}>음성 연결 완료</div></div>
+              <div><div style={{ fontSize: font.bodyText.size, fontWeight: 600, color: color.positive }}>Bluetooth</div><div style={{ fontSize: font.tiny.size, color: color.text3 }}>음성 연결 완료</div></div>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderRadius: radius.md, backgroundColor: color.positiveLight, opacity: 0.7 }}>
               <Spinner size={20} c={color.positive} />
-              <div><div style={{ fontSize: font.body.size, fontWeight: 600, color: color.text2 }}>WiFi Direct</div><div style={{ fontSize: font.tiny.size, color: color.text3 }}>데이터 채널 연결 중{dots}</div></div>
+              <div><div style={{ fontSize: font.bodyText.size, fontWeight: 600, color: color.text2 }}>WiFi Direct</div><div style={{ fontSize: font.tiny.size, color: color.text3 }}>데이터 채널 연결 중{dots}</div></div>
             </div>
           </div>
         )}
 
         {/* CONNECTED */}
         {phase === PHASE.CONNECTED && selected && (
-          <div style={{ background: color.surface, borderRadius: radius.lg, padding: "36px 24px", textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.05)", animation: "fadeIn 0.4s ease" }}>
+          <div style={{ background: color.surface, borderRadius: radius.lg, padding: "36px 24px", textAlign: "center", boxShadow: shadow.sm, animation: "fadeIn 0.4s ease" }}>
             <div style={{ width: 64, height: 64, borderRadius: "50%", backgroundColor: color.positiveLight, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={color.positive} strokeWidth="2.5" strokeLinecap="round"><path d="M20 6 9 17l-5-5" /></svg>
             </div>
             <div style={{ fontSize: font.h2.size, fontWeight: font.h2.weight, color: color.primary, marginBottom: 6 }}>연결 완료</div>
-            <div style={{ fontSize: font.body.size, color: color.text3, marginBottom: 28 }}>{selected.name} 사용 준비가 되었습니다</div>
+            <div style={{ fontSize: font.bodyText.size, color: color.text3, marginBottom: 28 }}>{selected.name} 사용 준비가 되었습니다</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 28 }}>
               {[{ label: "Bluetooth", desc: "음성 연결 완료" }, { label: "WiFi Direct", desc: "데이터 채널 연결 완료" }].map((item) => (
                 <div key={item.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", borderRadius: 10, backgroundColor: color.positiveLight }}>

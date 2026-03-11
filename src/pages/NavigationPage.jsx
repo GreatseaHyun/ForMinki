@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { color, font, radius } from "../tokens";
+import { color, font, radius, shadow } from "../tokens";
 
 const NAV_STATE = { SEARCH: "search", ROUTE_SELECT: "route", NAVIGATING: "navigating", ARRIVED: "arrived" };
 
@@ -59,7 +59,7 @@ const LocationDot = () => (
 
 function MapPlaceholder({ state }) {
   return (
-    <div style={{ flex: 1, backgroundColor: color.primaryLight, position: "relative", overflow: "hidden" }}>
+    <div style={{ flex: 1, backgroundColor: color.primaryLight, position: "relative", overflow: "hidden", background: `linear-gradient(135deg, ${color.primaryLight} 0%, #E0E8F0 100%)` }}>
       <svg width="100%" height="100%" style={{ position: "absolute", opacity: 0.15 }}>
         <defs>
           <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -113,7 +113,7 @@ function RouteCard({ route, selected, onSelect }) {
       </div>
       <div style={{ flex: 1 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: font.body.size, fontWeight: 700 }}>{route.label}</span>
+          <span style={{ fontSize: font.bodyText.size, fontWeight: 700 }}>{route.label}</span>
           <span style={{ fontSize: font.caption.size, color: color.text3 }}>{route.distance}</span>
         </div>
         <div style={{ fontSize: font.caption.size, color: color.text3, marginTop: 2 }}>{route.desc}</div>
@@ -167,7 +167,7 @@ export default function NavigationPage() {
       {/* Bottom Panel */}
       <div style={{
         height: panelHeight[navState], backgroundColor: color.surface, borderRadius: "20px 20px 0 0",
-        boxShadow: "0 -4px 20px rgba(0,0,0,0.06)", padding: "16px 20px",
+        boxShadow: shadow.lg, padding: "16px 20px",
         transition: "height 0.3s ease", overflow: "hidden", flexShrink: 0,
       }}>
         <div style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: color.border, margin: "0 auto 14px" }} />
@@ -175,13 +175,13 @@ export default function NavigationPage() {
         {/* SEARCH */}
         {navState === NAV_STATE.SEARCH && (
           <div style={{ animation: "fadeUp 0.3s ease" }}>
-            <div style={{ fontSize: 18, fontWeight: 700, color: color.primary, marginBottom: 12 }}>어디로 갈까요?</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: color.primary, marginBottom: 12, fontFamily: font.display }}>어디로 갈까요?</div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: radius.md, backgroundColor: color.background, marginBottom: 14 }}>
               <SearchIcon />
               <input type="text" placeholder="목적지 검색..." value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                style={{ flex: 1, border: "none", outline: "none", backgroundColor: "transparent", fontSize: font.body.size, color: color.text1, fontFamily: "inherit" }}
+                style={{ flex: 1, border: "none", outline: "none", backgroundColor: "transparent", fontSize: font.bodyText.size, color: color.text1, fontFamily: font.body }}
               />
             </div>
             <div style={{ display: "flex", gap: 8 }}>
@@ -248,7 +248,7 @@ export default function NavigationPage() {
           <div style={{ animation: "fadeUp 0.3s ease" }}>
             <div style={{ textAlign: "center", marginBottom: 14 }}>
               <CheckCircle />
-              <div style={{ fontSize: 18, fontWeight: 700, color: color.primary, marginTop: 6 }}>도착했습니다</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: color.primary, marginTop: 6, fontFamily: font.display }}>도착했습니다</div>
               <div style={{ fontSize: font.caption.size + 1, color: color.text3, marginTop: 2 }}>{MOCK_ARRIVAL.destination}</div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, padding: "14px", borderRadius: radius.lg, backgroundColor: color.background, marginBottom: 14 }}>
