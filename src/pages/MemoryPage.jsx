@@ -8,7 +8,7 @@ import {
 
 const MOCK_RECENT_QUERIES = ["아까 예산 얼마라 그랬지?", "어제 차 어디 세웠지?", "지난번 러닝 페이스"];
 
-const MOCK_SESSIONS = [
+export const MEMORY_SESSIONS = [
   {
     id: 1, type: "meeting", title: "제품팀 주간 회의", date: "오늘, 14:30", ago: "2시간 전",
     preview: "예산 3천만 원 확정. 보고서 마감: 다음 수요일. UI 리뷰 진행.",
@@ -491,7 +491,7 @@ export default function MemoryPage() {
   const [isSearching, setIsSearching] = useState(false);
   const [askResult, setAskResult] = useState(null);
   const [activeFilter, setActiveFilter] = useState("all");
-  const [sessions] = useState(MOCK_SESSIONS);
+  const [sessions] = useState(MEMORY_SESSIONS);
   const [expandedId, setExpandedId] = useState(null);
 
   const filters = [
@@ -637,3 +637,4 @@ export default function MemoryPage() {
     </div>
   );
 }
+

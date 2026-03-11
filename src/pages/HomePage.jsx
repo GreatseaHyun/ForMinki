@@ -3,8 +3,9 @@ import { color, font, radius, shadow } from "../tokens";
 import {
   AivyLogoIcon, MeetingIcon, MapRouteIcon, ScanTextIcon,
   ActivityIcon, LanguagesIcon, SparklesIcon, PointerIcon,
-  HandWaveIcon, FootstepsIcon, LockIcon, iconColors,
+  UserIcon, FootstepsIcon, iconColors, getIconForType,
 } from "../icons";
+import { MEMORY_SESSIONS } from "./MemoryPage";
 
 const MOCK_DEVICE = {
   connected: true, name: "AIVY-Pro", btConnected: true, wifiDirectConnected: true,
@@ -20,18 +21,24 @@ const MOCK_EVENTS = [
 ];
 
 const MOCK_ACTIVITY = [
-  { id: 1, text: "탭 감지됨", detail: "단일 탭 — 확인 제스처", time: "30초 전", type: "gesture" },
-  { id: 2, text: "고개 끄덕임 감지", detail: "동의 제스처 (95% 확신)", time: "2분 전", type: "gesture" },
+  { id: 1, text: "탭 감지됨", detail: "단일 탭 — 확인 제스처", time: "30초 전", type: "gesture", iconKey: "gestureTap" },
+  { id: 2, text: "고개 끄덕임 감지", detail: "동의 제스처 (95% 확신)", time: "2분 전", type: "gesture", iconKey: "gestureNod" },
   { id: 3, text: "걷기 감지됨", detail: "평균 속도 4.2km/h, 127보", time: "5분 전", type: "activity" },
   { id: 4, text: "OCR 텍스트 저장됨", detail: "간판 텍스트 — '이디야커피 신촌점'", time: "8분 전", type: "ocr" },
   { id: 5, text: "번역 세션 완료", detail: "KO↔JA 4턴 — 도쿄역 방향 문의", time: "12분 전", type: "translation" },
 ];
 
 const activityIconMap = {
-  gesture: { Icon: PointerIcon, colors: iconColors.gesture },
+  gestureTap: { Icon: PointerIcon, colors: iconColors.gesture },
+  gestureNod: { Icon: UserIcon, colors: iconColors.gesture },
   activity: { Icon: FootstepsIcon, colors: iconColors.exercise },
   ocr: { Icon: ScanTextIcon, colors: iconColors.ocr },
   translation: { Icon: LanguagesIcon, colors: iconColors.translation },
+};
+
+const sessionTypeLabels = {
+  meeting: "회의",
+  exercise: "운동",
 };
 
 const BtIcon = ({ active }) => (
@@ -83,20 +90,64 @@ const scenarios = [
   { name: "길안내", subtitle: "내비게이션", Icon: MapRouteIcon, colors: iconColors.navigation, tab: "navigate" },
   { name: "번역", subtitle: "실시간 통역", Icon: LanguagesIcon, colors: iconColors.translation, tab: "translate" },
   { name: "OCR", subtitle: "텍스트 인식", Icon: ScanTextIcon, colors: iconColors.ocr, tab: "ocr" },
-  { name: "운동", subtitle: "활동 추적", Icon: ActivityIcon, colors: iconColors.exercise, tab: null },
-  { name: "회의", subtitle: "회의 기록", Icon: MeetingIcon, colors: iconColors.meeting, tab: null },
+  { name: "운동", subtitle: "활동 추적", Icon: ActivityIcon, colors: iconColors.exercise, memoryType: "exercise" },
+  { name: "회의", subtitle: "회의 기록", Icon: MeetingIcon, colors: iconColors.meeting, memoryType: "meeting" },
   { name: "기억", subtitle: "AI 검색", Icon: SparklesIcon, colors: iconColors.memory, tab: "memory" },
 ];
+
+function getShortcutSession(memoryType) {
+  return MEMORY_SESSIONS.find((session) => session.type === memoryType) || null;
+}
+
+function getShortcutSummary(session) {
+  if (!session?.detail) return [session?.preview || "기록 정보가 없습니다."];
+
+  if (session.type === "exercise") {
+    return [
+      `거리 ${session.detail.totalDistance} · 시간 ${session.detail.totalTime}`,
+      `평균 페이스 ${session.detail.avgPace} · 칼로리 ${session.detail.calories}`,
+    ];
+  }
+
+  if (session.type === "meeting") {
+    const participants = session.detail.participants?.join(", ");
+    const firstAction = session.detail.actionItems?.[0];
+    return [
+      `참석자 ${participants || "정보 없음"} · 진행 ${session.detail.duration}`,
+      firstAction || "등록된 액션 아이템이 없습니다.",
+    ];
+  }
+
+  return [session.preview];
+}
 
 export default function HomePage({ onNavigate, devMode }) {
   const [device] = useState(MOCK_DEVICE);
   const [events] = useState(MOCK_EVENTS);
   const [time, setTime] = useState(new Date());
+  const [shortcutSession, setShortcutSession] = useState(null);
 
   useEffect(() => {
     const t = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
+
+  const handleScenarioClick = (scenario) => {
+    if (scenario.tab) {
+      onNavigate(scenario.tab);
+      return;
+    }
+
+    if (scenario.memoryType) {
+      setShortcutSession(getShortcutSession(scenario.memoryType));
+    }
+  };
+
+  const closeShortcutPreview = () => setShortcutSession(null);
+
+  const ShortcutIcon = shortcutSession ? getIconForType(shortcutSession.type) : null;
+  const shortcutColors = shortcutSession ? (iconColors[shortcutSession.type] || iconColors.memory) : iconColors.memory;
+  const shortcutSummary = shortcutSession ? getShortcutSummary(shortcutSession) : [];
 
   return (
     <div style={{ flex: 1, overflowY: "auto", backgroundColor: "transparent" }}>
@@ -214,11 +265,12 @@ export default function HomePage({ onNavigate, devMode }) {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
           {scenarios.map((s) => {
-            const enabled = !!s.tab;
+            const enabled = !!(s.tab || s.memoryType);
+            const isWorkingOn = s.memoryType === "exercise" || s.memoryType === "meeting";
             return (
               <div
                 key={s.name}
-                onClick={() => enabled && onNavigate(s.tab)}
+                onClick={() => enabled && handleScenarioClick(s)}
                 style={{
                   backgroundColor: color.surface, borderRadius: radius.lg, padding: "16px 10px 14px",
                   textAlign: "center", cursor: enabled ? "pointer" : "default",
@@ -241,6 +293,23 @@ export default function HomePage({ onNavigate, devMode }) {
                   }
                 }}
               >
+                {isWorkingOn && (
+                  <span style={{
+                    position: "absolute",
+                    top: 6,
+                    right: 6,
+                    fontSize: 7,
+                    lineHeight: 1,
+                    fontWeight: 500,
+                    color: "rgba(160,160,176,0.78)",
+                    backgroundColor: "rgba(240,240,245,0.55)",
+                    border: "1px solid rgba(229,229,234,0.55)",
+                    borderRadius: 999,
+                    padding: "1px 3px",
+                  }}>
+                    작업중
+                  </span>
+                )}
                 {/* Icon container */}
                 <div style={{
                   width: 40, height: 40, borderRadius: radius.md,
@@ -252,17 +321,6 @@ export default function HomePage({ onNavigate, devMode }) {
                 </div>
                 <div style={{ fontSize: font.caption.size, fontWeight: 600, color: enabled ? color.text1 : color.text3 }}>{s.name}</div>
                 <div style={{ fontSize: 10, color: color.text4, marginTop: 1 }}>{s.subtitle}</div>
-                {/* Lock overlay for disabled */}
-                {!enabled && (
-                  <div style={{
-                    position: "absolute", top: 8, right: 8,
-                    width: 20, height: 20, borderRadius: 6,
-                    backgroundColor: color.backgroundAlt,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}>
-                    <LockIcon size={11} color={color.text4} />
-                  </div>
-                )}
               </div>
             );
           })}
@@ -307,7 +365,7 @@ export default function HomePage({ onNavigate, devMode }) {
             </div>
             <div style={{ background: color.surface, borderRadius: radius.lg, overflow: "hidden", boxShadow: shadow.sm }}>
               {MOCK_ACTIVITY.map((a, i) => {
-                const iconInfo = activityIconMap[a.type] || activityIconMap.gesture;
+                const iconInfo = activityIconMap[a.iconKey || a.type] || activityIconMap.gestureTap;
                 const IconComp = iconInfo.Icon;
                 return (
                   <div key={a.id} style={{
@@ -333,7 +391,137 @@ export default function HomePage({ onNavigate, devMode }) {
           </div>
         )}
       </div>
+
+      {shortcutSession && ShortcutIcon && (
+        <div
+          onClick={closeShortcutPreview}
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(26,26,46,0.35)",
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "center",
+            zIndex: 20,
+            padding: "16px",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: "100%",
+              maxWidth: 430,
+              borderRadius: radius.lg,
+              backgroundColor: color.surface,
+              boxShadow: shadow.lg,
+              padding: "16px 16px 14px",
+              animation: "fadeUp 0.2s ease",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, marginBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                <div style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: radius.sm,
+                  backgroundColor: shortcutColors.bg,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}>
+                  <ShortcutIcon size={18} color={shortcutColors.fg} />
+                </div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: color.text4, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                    {sessionTypeLabels[shortcutSession.type]} 최근 기록
+                  </div>
+                  <div style={{ fontSize: font.bodyText.size, fontWeight: 700, color: color.text1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {shortcutSession.title}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={closeShortcutPreview}
+                style={{
+                  border: "none",
+                  backgroundColor: color.background,
+                  color: color.text3,
+                  width: 26,
+                  height: 26,
+                  borderRadius: radius.sm,
+                  cursor: "pointer",
+                  fontSize: 15,
+                  lineHeight: "26px",
+                  padding: 0,
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ fontSize: font.caption.size, color: color.text4, marginBottom: 8 }}>{shortcutSession.date}</div>
+            <div style={{ fontSize: font.caption.size, color: color.text2, lineHeight: 1.5, marginBottom: 10 }}>{shortcutSession.preview}</div>
+
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+              {shortcutSession.tags.map((tag) => (
+                <span key={tag} style={{ fontSize: 10, padding: "2px 8px", borderRadius: 6, backgroundColor: shortcutColors.bg, color: shortcutColors.fg, fontWeight: 500 }}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 12 }}>
+              {shortcutSummary.map((line) => (
+                <div key={line} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                  <span style={{ width: 6, height: 6, marginTop: 6, borderRadius: "50%", backgroundColor: shortcutColors.fg, flexShrink: 0 }} />
+                  <span style={{ fontSize: font.caption.size, color: color.text2, lineHeight: 1.4 }}>{line}</span>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: "flex", gap: 8 }}>
+              <button
+                type="button"
+                onClick={() => {
+                  closeShortcutPreview();
+                  onNavigate("memory");
+                }}
+                style={{
+                  flex: 1,
+                  border: "none",
+                  borderRadius: radius.sm,
+                  backgroundColor: color.primary,
+                  color: "white",
+                  padding: "10px 0",
+                  fontSize: font.caption.size,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                기억 탭에서 전체 보기
+              </button>
+              <button
+                type="button"
+                onClick={closeShortcutPreview}
+                style={{
+                  border: "none",
+                  borderRadius: radius.sm,
+                  backgroundColor: color.backgroundAlt,
+                  color: color.text3,
+                  padding: "10px 14px",
+                  fontSize: font.caption.size,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
